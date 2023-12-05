@@ -8,9 +8,14 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
+    // додав до модельки поле name та перевірив чи є поле name у запиті
     public function store(Request $request)
     {
         // TASK: Currently this statement fails. Fix the underlying issue.
+        $request->validate([
+            'name' => 'required',
+        ]);
+
         Project::create([
             'name' => $request->name
         ]);
@@ -26,6 +31,7 @@ class ProjectController extends Controller
         //   where name = $request->old_name
 
         // Insert Eloquent statement below
+        Project::where('name', $request->old_name)->update(['name' => $request->new_name]);
 
         return redirect('/')->with('success', 'Projects updated');
     }
@@ -35,11 +41,13 @@ class ProjectController extends Controller
         Project::destroy($projectId);
 
         // TASK: change this Eloquent statement to include the soft-deletes records
-        $projects = Project::all();
+
+        $projects = Project::withTrashed()->get();
 
         return view('projects.index', compact('projects'));
     }
 
+    // Я спершу не знав, як виконувати таке завдання, бо ніколи з цим не мав справи. Але потім Посидів почитав та поспілкувався з ШІ.
     public function store_with_stats(Request $request)
     {
         // TASK: on creating a new project, create an Observer event to run SQL
